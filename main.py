@@ -5,9 +5,20 @@ import sys
 
 token = sys.argv[1]
 endpoint = sys.argv[2]
-exclude = sys.argv[3]
+changed_files = sys.argv[3]
+exclude = sys.argv[4]
 codeql_languages = ["cpp", "csharp", "go", "java", "javascript", "python", "ruby", "typescript", "kotlin", "swift"]
-
+codeql_languages_map = {
+    "cpp": [".cpp", ".c++", ".cxx", ".hpp", ".hh", ".h++", ".hxx", ".c", ".cc", ".h"],
+    "csharp": [".sln", ".csproj", ".cs", ".cshtml", ".xaml"],
+    "go": [".go"].
+    "java": [".java", ".kt"],
+    "python": [".py", ".md"],
+    "ruby": [".rb", ".erb", ".gemspec"],
+    "swift": [".swift"],
+    "typescript": [".ts", ".tsx", ".mts", ".cts"]
+    
+}
 
 # Connect to the languages API and return languages
 def get_languages():
@@ -33,6 +44,22 @@ def build_languages_list(languages):
     intersection = list(set(languages) & set(codeql_languages))
     return intersection
 
+def detect_extensions():
+    return {os.path.splitext(f)[1] for f in changed_files if os.path.splitext(f)[1]}
+    
+# return a list of languages based on detected extensions
+def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, list_of_languages):
+    if not set_of_extensions:
+        return list_of_languages
+    detected_languages = []
+    for language in list_of_languages:
+        # Get the extensions for the language from the mapping
+        extensions = codeql_languages_map.get(language, [])
+        # Check if any of the language's extensions are in the set of extensions
+        if set(extensions) & set_of_extensions:
+            detected_languages.append(language)
+    return detected_languages
+
 # return a list of objects from language list if they are not in the exclude list
 def exclude_languages(language_list):
     excluded = [x.strip() for x in exclude.split(',')]
@@ -49,7 +76,8 @@ def set_action_output(output_name, value) :
 def main():
     languages = get_languages()
     language_list = build_languages_list(languages)
-    output = exclude_languages(language_list)
+    filter_languages_by_extensions = detect_languages_from_extensions(detect_extensions(), codeql_languages_map, language_list)
+    output = exclude_languages(filter_languages_by_extensions)
     set_action_output("languages", json.dumps(output))
 
 if __name__ == '__main__':

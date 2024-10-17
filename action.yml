@@ -12,6 +12,9 @@ inputs:
   exclude:
     description: 'Use a comma separated list here to exclude specific languges from your CodeQL scan.  Example: "python, java"'
     required: false
+  changed-files:
+    description: 'List of changed files for which you want to scan languages'
+    required: false
 outputs:
   languages:
     description: 'List of languages that will set the job matrix'
@@ -21,5 +24,6 @@ runs:
   args:
    - ${{ inputs.access-token }}
    - ${{ inputs.endpoint }}
+   - ${{ inputs.changed-files }}
    - ${{ inputs.exclude }}
 
