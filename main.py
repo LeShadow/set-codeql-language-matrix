@@ -16,7 +16,7 @@ codeql_languages_map = {
     "python": [".py"],
     "ruby": [".rb", ".erb", ".gemspec"],
     "swift": [".swift"],
-    "typescript": [".ts", ".tsx", ".mts", ".cts"]
+    "javascript": [".ts", ".tsx", ".mts", ".cts"]
     
 }
 
@@ -50,7 +50,7 @@ def detect_extensions():
     
 # return a list of languages based on detected extensions
 def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, list_of_languages):
-    print(set_of_extensions)
+    #print(set_of_extensions)
     if not set_of_extensions:
         return list_of_languages
     detected_languages = []
@@ -60,7 +60,7 @@ def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, li
         # Check if any of the language's extensions are in the set of extensions
         if set(extensions) & set_of_extensions:
             detected_languages.append(language)
-    print(detected_languages)
+    #print(detected_languages)
     return detected_languages
 
 # return a list of objects from language list if they are not in the exclude list
