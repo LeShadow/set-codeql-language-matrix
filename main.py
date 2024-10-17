@@ -12,7 +12,7 @@ codeql_languages_map = {
     "cpp": [".cpp", ".c++", ".cxx", ".hpp", ".hh", ".h++", ".hxx", ".c", ".cc", ".h"],
     "csharp": [".sln", ".csproj", ".cs", ".cshtml", ".xaml"],
     "go": [".go"],
-    "java": [".java", ".kt", ".md"],
+    "java": [".java", ".kt"],
     "python": [".py"],
     "ruby": [".rb", ".erb", ".gemspec"],
     "swift": [".swift"],
@@ -46,12 +46,10 @@ def build_languages_list(languages):
 
 def detect_extensions():
     changed_files_list = changed_files.split(',')
-    print(changed_files_list)
     return {os.path.splitext(f)[1] for f in changed_files_list if os.path.splitext(f)[1]}
     
 # return a list of languages based on detected extensions
 def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, list_of_languages):
-    print("set: " + str(set_of_extensions))
     if not set_of_extensions:
         return list_of_languages
     detected_languages = []
@@ -61,7 +59,6 @@ def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, li
         # Check if any of the language's extensions are in the set of extensions
         if set(extensions) & set_of_extensions:
             detected_languages.append(language)
-    print(detected_languages)
     return detected_languages
 
 # return a list of objects from language list if they are not in the exclude list
