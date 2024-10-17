@@ -11,7 +11,7 @@ codeql_languages = ["cpp", "csharp", "go", "java", "javascript", "python", "ruby
 codeql_languages_map = {
     "cpp": [".cpp", ".c++", ".cxx", ".hpp", ".hh", ".h++", ".hxx", ".c", ".cc", ".h"],
     "csharp": [".sln", ".csproj", ".cs", ".cshtml", ".xaml"],
-    "go": [".go"].
+    "go": [".go"],
     "java": [".java", ".kt"],
     "python": [".py", ".md"],
     "ruby": [".rb", ".erb", ".gemspec"],
