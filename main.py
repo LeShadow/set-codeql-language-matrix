@@ -16,7 +16,7 @@ codeql_languages_map = {
     "python": [".py"],
     "ruby": [".rb", ".erb", ".gemspec"],
     "swift": [".swift"],
-    "javascript": [".ts", ".tsx", ".mts", ".cts"]
+    "javascript": [".ts", ".tsx", ".mts", ".cts",".js",".jsx",".mjs",".es",".es6",".htm",".html",".xhtm",".xhtml",".vue",".hbs",".ejs",".njk",".json",".yaml",".yml",".raml",".xml"]
     
 }
 
