@@ -45,7 +45,8 @@ def build_languages_list(languages):
     return intersection
 
 def detect_extensions():
-    return {os.path.splitext(f)[1] for f in changed_files if os.path.splitext(f)[1]}
+    changed_files_list = changed_files.split(',')
+    return {os.path.splitext(f)[1] for f in changed_files_list if os.path.splitext(f)[1]}
     
 # return a list of languages based on detected extensions
 def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, list_of_languages):
