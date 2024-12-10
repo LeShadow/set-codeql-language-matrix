@@ -5,13 +5,28 @@ import sys
 
 token = sys.argv[1]
 endpoint = sys.argv[2]
-exclude = sys.argv[3]
-codeql_languages = ["cpp", "csharp", "go", "java", "javascript", "python", "ruby", "typescript", "kotlin", "swift"]
+repository_info = sys.argv[3]
+pr_number = sys.argv[4]
+exclude = sys.argv[5]
 
+codeql_languages = ["cpp", "csharp", "go", "java", "javascript", "python", "ruby", "typescript", "kotlin", "swift"]
+codeql_languages_map = {
+    "cpp": [".cpp", ".c++", ".cxx", ".hpp", ".hh", ".h++", ".hxx", ".c", ".cc", ".h"],
+    "csharp": [".sln", ".csproj", ".cs", ".cshtml", ".xaml"],
+    "go": [".go"],
+    "java": [".java", ".kt"],
+    "python": [".py"],
+    "ruby": [".rb", ".erb", ".gemspec"],
+    "swift": [".swift"],
+    "javascript": [".ts", ".tsx", ".mts", ".cts",".js",".jsx",".mjs",".es",".es6",".htm",".html",".xhtm",".xhtml",".vue",".hbs",".ejs",".njk",".json",".yaml",".yml",".raml",".xml"]
+    
+}
+changed_files = []
+
+headers = {'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json'}
 
 # Connect to the languages API and return languages
 def get_languages():
-    headers = {'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json'}
     response = requests.get(endpoint, headers=headers)
     return response.json()
 
@@ -33,6 +48,42 @@ def build_languages_list(languages):
     intersection = list(set(languages) & set(codeql_languages))
     return intersection
 
+def get_changed_files():
+    page=1
+    while True:
+        changed_files_endpoint = "https://api.github.com/repos/{}/pulls/{}/files?page={}".format(repository_info, pr_number, page)
+        response = requests.get(changed_files_endpoint, headers=headers)
+        if response.status_code != 200:
+            break
+
+        response_output = response.json()
+        for file in response_output:
+            changed_files.append(file["filename"])
+
+        if "next" not in response.links:
+            break
+        page += 1            
+    
+
+# Get a list of extensions from the list of files 
+def detect_extensions():
+    get_changed_files()
+    #changed_files_list = changed_files.split(',')
+    return {os.path.splitext(f)[1] for f in changed_files if os.path.splitext(f)[1]}
+    
+# return a list of languages based on detected extensions
+def detect_languages_from_extensions(set_of_extensions, codeql_languages_map, list_of_languages):
+    if not set_of_extensions:
+        return list_of_languages
+    detected_languages = []
+    for language in list_of_languages:
+        # Get the extensions for the language from the mapping
+        extensions = codeql_languages_map.get(language, [])
+        # Check if any of the language's extensions are in the set of extensions
+        if set(extensions) & set_of_extensions:
+            detected_languages.append(language)
+    return detected_languages
+
 # return a list of objects from language list if they are not in the exclude list
 def exclude_languages(language_list):
     excluded = [x.strip() for x in exclude.split(',')]
@@ -49,7 +100,8 @@ def set_action_output(output_name, value) :
 def main():
     languages = get_languages()
     language_list = build_languages_list(languages)
-    output = exclude_languages(language_list)
+    filter_languages_by_extensions = detect_languages_from_extensions(detect_extensions(), codeql_languages_map, language_list)
+    output = exclude_languages(filter_languages_by_extensions)
     set_action_output("languages", json.dumps(output))
 
 if __name__ == '__main__':
