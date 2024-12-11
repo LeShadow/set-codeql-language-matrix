@@ -51,11 +51,33 @@ def build_languages_list(languages):
     intersection = list(set(languages) & set(codeql_languages))
     return intersection
 
+def is_pull_request():
+    event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+    return event_name.startswith("pull_request")
+
+def is_push_to_main():
+    event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+    ref = os.environ.get("GITHUB_REF", "")
+
+    # Check if this is a push event and if ref corresponds to the main branch
+    return event_name == "push" and ref.endswith("main")
+
 def get_changed_files():
-    for changed_file in GithubClient.paginate(GithubClient.rest.pulls.list_files, owner=repository_info.split('/')[0], repo=repository_info.split('/')[1], pull_number=pr_number):
-        changed_file: DiffEntry
-        if changed_file.status != "removed":
-            changed_files.append(changed_file.filename)
+    if is_pull_request():
+        for changed_file in GithubClient.paginate(GithubClient.rest.pulls.list_files, owner=repository_info.split('/')[0], repo=repository_info.split('/')[1], pull_number=pr_number):
+            changed_file: DiffEntry
+            if changed_file.status != "removed":
+                changed_files.append(changed_file.filename)
+    elif is_push_to_main():
+        event_path = os.environ.get("GITHUB_EVENT_PATH", "")
+        if not event_path:
+            print("No event path found.")
+        else:
+            with open(event_path, 'r') as f:
+                event_data = json.load(f)
+            for commit in event_data.get("commits", []):
+                changed_files.extend(commit.get("added", []))
+                changed_files.extend(commit.get("modified", []))
 
 # Get a list of extensions from the list of files 
 def detect_extensions():
