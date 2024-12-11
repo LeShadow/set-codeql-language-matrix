@@ -6,9 +6,16 @@ inputs:
   access-token:  
     description: 'github token'
     required: true
-  endpoint:
-    description: 'languages API endpoint'
+  repository:
+    description: 'Repository information. owner/repo-name'
     required: true
+  changed_files_detection:
+    description: 'Repository information. owner/repo-name'
+    default: "false"
+    required: true
+  pull_number:
+    description: 'PR Number'
+    required: false
   exclude:
     description: 'Use a comma separated list here to exclude specific languges from your CodeQL scan.  Example: "python, java"'
     required: false
@@ -20,6 +27,8 @@ runs:
   image: 'Dockerfile'
   args:
    - ${{ inputs.access-token }}
-   - ${{ inputs.endpoint }}
+   - ${{ inputs.repository }}
+   - ${{ inputs.changed_files_detection }}
+   - ${{ inputs.pull_number }}
    - ${{ inputs.exclude }}
 
