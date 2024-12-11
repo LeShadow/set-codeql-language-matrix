@@ -69,15 +69,10 @@ def get_changed_files():
             if changed_file.status != "removed":
                 changed_files.append(changed_file.filename)
     elif is_push_to_main():
-        event_path = os.environ.get("GITHUB_EVENT_PATH", "")
-        if not event_path:
-            print("No event path found.")
-        else:
-            with open(event_path, 'r') as f:
-                event_data = json.load(f)
-            for commit in event_data.get("commits", []):
-                changed_files.extend(commit.get("added", []))
-                changed_files.extend(commit.get("modified", []))
+        for changed_file in GithubClient.paginate(GithubClient.rest.repos.list_pull_requests_associated_with_commit, owner=repository_info.split('/')[0], repo=repository_info.split('/')[1] ,commit_sha=os.environ.get("GITHUB_SHA", "")):
+            changed_file: DiffEntry
+            if changed_file.status != "removed":
+                changed_files.append(changed_file.filename)
 
 # Get a list of extensions from the list of files 
 def detect_extensions():
