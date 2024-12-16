@@ -51,6 +51,7 @@ def detect_extensions():
         print("We made it here")
         with open(changed_files) as f:
             changed_files_data = f.read()
+        print(changed_files_data)
     changed_files_list = changed_files_data.split(',')
     return {os.path.splitext(f)[1] for f in changed_files_list if os.path.splitext(f)[1]}
     
