@@ -46,7 +46,9 @@ def build_languages_list(languages):
 
 def detect_extensions():
     changed_files_data = changed_files
+    print(changed_files)
     if os.path.isfile(changed_files):
+        print("We made it here")
         with open(changed_files) as f:
             changed_files_data = f.read()
     changed_files_list = changed_files_data.split(',')
