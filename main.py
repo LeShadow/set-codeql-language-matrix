@@ -45,7 +45,11 @@ def build_languages_list(languages):
     return intersection
 
 def detect_extensions():
-    changed_files_list = changed_files.split(',')
+    changed_files_data = changed_files
+    if 'added_files.txt' in changed_files:
+        with open(changed_files) as f:
+            changed_files_data = f.read()
+    changed_files_list = changed_files_data.split(',')
     return {os.path.splitext(f)[1] for f in changed_files_list if os.path.splitext(f)[1]}
     
 # return a list of languages based on detected extensions
